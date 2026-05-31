@@ -10,8 +10,8 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -19,6 +19,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -35,28 +37,38 @@ fun GymBroTextField(
     placeholder: String = "",
     errorText: String? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    singleLine: Boolean = true
+    singleLine: Boolean = true,
+    leadingIcon: @Composable (() -> Unit)? = null
 ) {
     val isError = errorText != null
 
     Column(modifier = modifier.fillMaxWidth()) {
-        OutlinedTextField(
+        Text(
+            text = label,
+            style = GymBroTypography.bodyLarge.copy(fontWeight = FontWeight.Medium),
+            color = GymBroColors.TextPrimary,
+            modifier = Modifier.padding(bottom = 6.dp)
+        )
+        TextField(
             value = value,
             onValueChange = onValueChange,
             modifier = Modifier.fillMaxWidth(),
-            label = { Text(label) },
-            placeholder = { Text(placeholder) },
+            placeholder = { Text(placeholder, color = GymBroColors.TextTertiary) },
+            leadingIcon = leadingIcon,
             isError = isError,
             singleLine = singleLine,
             keyboardOptions = keyboardOptions,
             shape = RoundedCornerShape(12.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = GymBroColors.Primary,
-                unfocusedBorderColor = GymBroColors.Divider,
-                errorBorderColor = GymBroColors.Error,
-                focusedLabelColor = GymBroColors.Primary,
-                unfocusedLabelColor = GymBroColors.TextSecondary,
-                errorLabelColor = GymBroColors.Error
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = GymBroColors.SurfaceVariant,
+                unfocusedContainerColor = GymBroColors.SurfaceVariant,
+                errorContainerColor = GymBroColors.SurfaceVariant,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent,
+                errorIndicatorColor = Color.Transparent,
+                focusedTextColor = GymBroColors.TextPrimary,
+                unfocusedTextColor = GymBroColors.TextPrimary
             )
         )
         if (isError && errorText != null) {
@@ -77,18 +89,25 @@ fun GymBroPasswordField(
     label: String,
     modifier: Modifier = Modifier,
     placeholder: String = "",
-    errorText: String? = null
+    errorText: String? = null,
+    leadingIcon: @Composable (() -> Unit)? = null
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
     val isError = errorText != null
 
     Column(modifier = modifier.fillMaxWidth()) {
-        OutlinedTextField(
+        Text(
+            text = label,
+            style = GymBroTypography.bodyLarge.copy(fontWeight = FontWeight.Medium),
+            color = GymBroColors.TextPrimary,
+            modifier = Modifier.padding(bottom = 6.dp)
+        )
+        TextField(
             value = value,
             onValueChange = onValueChange,
             modifier = Modifier.fillMaxWidth(),
-            label = { Text(label) },
-            placeholder = { Text(placeholder) },
+            placeholder = { Text(placeholder, color = GymBroColors.TextTertiary) },
+            leadingIcon = leadingIcon,
             isError = isError,
             singleLine = true,
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -101,17 +120,20 @@ fun GymBroPasswordField(
                 val description = if (passwordVisible) "Hide password" else "Show password"
 
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                    Icon(imageVector = image, contentDescription = description)
+                    Icon(imageVector = image, contentDescription = description, tint = GymBroColors.TextSecondary)
                 }
             },
             shape = RoundedCornerShape(12.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = GymBroColors.Primary,
-                unfocusedBorderColor = GymBroColors.Divider,
-                errorBorderColor = GymBroColors.Error,
-                focusedLabelColor = GymBroColors.Primary,
-                unfocusedLabelColor = GymBroColors.TextSecondary,
-                errorLabelColor = GymBroColors.Error
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = GymBroColors.SurfaceVariant,
+                unfocusedContainerColor = GymBroColors.SurfaceVariant,
+                errorContainerColor = GymBroColors.SurfaceVariant,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent,
+                errorIndicatorColor = Color.Transparent,
+                focusedTextColor = GymBroColors.TextPrimary,
+                unfocusedTextColor = GymBroColors.TextPrimary
             )
         )
         if (isError && errorText != null) {

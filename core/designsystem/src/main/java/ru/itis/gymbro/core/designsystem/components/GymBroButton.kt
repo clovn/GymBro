@@ -101,3 +101,29 @@ fun GymBroTextButton(
         )
     }
 }
+
+@Composable
+fun GymBroGoogleButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier
+            .fillMaxWidth()
+            .height(52.dp),
+        enabled = enabled,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = GymBroColors.SurfaceVariant,
+            contentColor = GymBroColors.TextPrimary
+        ),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Text(
+            text = text,
+            style = GymBroTypography.labelLarge.copy(color = GymBroColors.TextPrimary)
+        )
+    }
+}

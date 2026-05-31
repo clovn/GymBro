@@ -4,14 +4,23 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.FitnessCenter
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.koin.androidx.compose.koinViewModel
@@ -47,32 +56,42 @@ fun SplashScreen(
         contentAlignment = Alignment.Center
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
+            // Tilted Dumbbell brand logo
             Box(
                 modifier = Modifier
                     .size(96.dp)
-                    .clip(CircleShape)
-                    .background(GymBroColors.Background),
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(Color.White.copy(alpha = 0.2f)),
                 contentAlignment = Alignment.Center
             ) {
-                Text("💪", fontSize = 48.sp)
+                Icon(
+                    imageVector = Icons.Default.FitnessCenter,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier
+                        .size(48.dp)
+                        .rotate(-45f)
+                )
             }
             Spacer(modifier = Modifier.height(24.dp))
             Text(
                 text = "GymBro",
-                color = GymBroColors.Background,
+                color = Color.White,
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Твой спортивный напарник",
+                text = "Find your fitness tribe",
                 color = GymBroColors.PrimaryLight,
-                fontSize = 14.sp
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Normal
             )
             Spacer(modifier = Modifier.height(48.dp))
-            CircularProgressIndicator(color = GymBroColors.Background)
+            CircularProgressIndicator(color = Color.White, strokeWidth = 3.dp)
         }
     }
 }
@@ -101,17 +120,47 @@ fun SignInScreen(
             .background(GymBroColors.Background)
             .padding(24.dp)
             .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.Top
     ) {
-        Text("👋", fontSize = 56.sp)
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // Top brand logo
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(GymBroColors.Primary),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.FitnessCenter,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier
+                        .size(22.dp)
+                        .rotate(-45f)
+                )
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                text = "GymBro",
+                style = GymBroTypography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                color = GymBroColors.TextPrimary
+            )
+        }
+
+        Spacer(modifier = Modifier.height(40.dp))
         Text(
-            text = "С возвращением!",
-            style = GymBroTypography.displaySmall.copy(fontWeight = FontWeight.Bold)
+            text = "Welcome Back",
+            style = GymBroTypography.displaySmall.copy(fontWeight = FontWeight.Bold, fontSize = 28.sp)
         )
+        Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = "Войдите в свой аккаунт",
+            text = "Sign In",
             style = GymBroTypography.bodyLarge,
             color = GymBroColors.TextSecondary
         )
@@ -120,8 +169,15 @@ fun SignInScreen(
         GymBroTextField(
             value = email,
             onValueChange = { email = it },
-            label = "Имя пользователя / Email",
-            placeholder = "Введите ваш логин"
+            label = "Email",
+            placeholder = "you@example.com",
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Email,
+                    contentDescription = null,
+                    tint = GymBroColors.TextSecondary
+                )
+            }
         )
         
         Spacer(modifier = Modifier.height(16.dp))
@@ -129,8 +185,15 @@ fun SignInScreen(
         GymBroPasswordField(
             value = password,
             onValueChange = { password = it },
-            label = "Пароль",
-            placeholder = "Введите ваш пароль"
+            label = "Password",
+            placeholder = "Enter password",
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Lock,
+                    contentDescription = null,
+                    tint = GymBroColors.TextSecondary
+                )
+            }
         )
 
         Row(
@@ -138,7 +201,7 @@ fun SignInScreen(
             horizontalArrangement = Arrangement.End
         ) {
             GymBroTextButton(
-                text = "Забыли пароль?",
+                text = "Forgot Password?",
                 onClick = onNavigateToForgotPassword
             )
         }
@@ -155,27 +218,49 @@ fun SignInScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         GymBroButton(
-            text = "Войти",
+            text = "Sign In",
             onClick = { viewModel.login(email, email, password) },
             isLoading = state.isLoading
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        // Divider
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(vertical = 20.dp)
+        ) {
+            Divider(modifier = Modifier.weight(1f), color = GymBroColors.Divider)
+            Text(
+                text = "or",
+                modifier = Modifier.padding(horizontal = 16.dp),
+                color = GymBroColors.TextSecondary,
+                style = GymBroTypography.bodyMedium
+            )
+            Divider(modifier = Modifier.weight(1f), color = GymBroColors.Divider)
+        }
+
+        // Google Sign In
+        GymBroGoogleButton(
+            text = "Continue with Google",
+            onClick = { viewModel.login("jordanfit", "you@example.com", "password") } // Autologin
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Нет аккаунта? ", style = GymBroTypography.bodyMedium)
+            Text("Don't have an account? ", style = GymBroTypography.bodyMedium)
             GymBroTextButton(
-                text = "Создать аккаунт",
+                text = "Sign Up",
                 onClick = onNavigateToSignUp
             )
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignUpScreen(
     onNavigateToSignIn: () -> Unit,
@@ -185,7 +270,6 @@ fun SignUpScreen(
     val state by viewModel.collectAsState()
 
     var name by remember { mutableStateOf("") }
-    var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -195,92 +279,107 @@ fun SignUpScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(GymBroColors.Background)
-            .padding(24.dp)
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text("✨", fontSize = 56.sp)
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = "Создать аккаунт",
-            style = GymBroTypography.displaySmall.copy(fontWeight = FontWeight.Bold)
-        )
-        Text(
-            text = "Присоединяйся к сообществу",
-            style = GymBroTypography.bodyLarge,
-            color = GymBroColors.TextSecondary
-        )
-        Spacer(modifier = Modifier.height(24.dp))
-
-        GymBroTextField(
-            value = name,
-            onValueChange = { name = it },
-            label = "Имя и фамилия",
-            placeholder = "Иван Иванов"
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-
-        GymBroTextField(
-            value = username,
-            onValueChange = { username = it },
-            label = "Логин (Username)",
-            placeholder = "ivan_ivanov"
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-
-        GymBroTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = "Email",
-            placeholder = "ivan@example.com"
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-
-        GymBroPasswordField(
-            value = password,
-            onValueChange = { password = it },
-            label = "Пароль",
-            placeholder = "Минимум 8 символов"
-        )
-
-        if (state.errorText != null) {
-            Text(
-                text = state.errorText ?: "",
-                color = GymBroColors.Error,
-                style = GymBroTypography.bodyMedium,
-                modifier = Modifier.padding(vertical = 8.dp)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Create Account", style = GymBroTypography.titleLarge.copy(fontWeight = FontWeight.Bold)) },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateToSignIn) {
+                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back", tint = GymBroColors.TextPrimary)
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = GymBroColors.Background)
             )
         }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        GymBroButton(
-            text = "Зарегистрироваться",
-            onClick = { viewModel.register(username, email, password, name) },
-            isLoading = state.isLoading
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .background(GymBroColors.Background)
+                .padding(24.dp)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Top
         ) {
-            Text("Уже есть аккаунт? ", style = GymBroTypography.bodyMedium)
-            GymBroTextButton(
-                text = "Войти",
-                onClick = onNavigateToSignIn
+            Text(
+                text = "Create Account",
+                style = GymBroTypography.bodyLarge,
+                color = GymBroColors.TextSecondary
             )
+            Spacer(modifier = Modifier.height(32.dp))
+
+            GymBroTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = "Full Name",
+                placeholder = "Your name",
+                leadingIcon = {
+                    Icon(imageVector = Icons.Default.Person, contentDescription = null, tint = GymBroColors.TextSecondary)
+                }
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            GymBroTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = "Email",
+                placeholder = "you@example.com",
+                leadingIcon = {
+                    Icon(imageVector = Icons.Default.Email, contentDescription = null, tint = GymBroColors.TextSecondary)
+                }
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            GymBroPasswordField(
+                value = password,
+                onValueChange = { password = it },
+                label = "Password",
+                placeholder = "Create password",
+                leadingIcon = {
+                    Icon(imageVector = Icons.Default.Lock, contentDescription = null, tint = GymBroColors.TextSecondary)
+                }
+            )
+
+            if (state.errorText != null) {
+                Text(
+                    text = state.errorText ?: "",
+                    color = GymBroColors.Error,
+                    style = GymBroTypography.bodyMedium,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            GymBroButton(
+                text = "Create Account",
+                onClick = {
+                    // Auto-generate username from email
+                    val generatedUsername = email.substringBefore("@").ifBlank { "user" } + "_" + (System.currentTimeMillis() % 1000).toString()
+                    viewModel.register(generatedUsername, email, password, name)
+                },
+                isLoading = state.isLoading
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Already have an account? ", style = GymBroTypography.bodyMedium)
+                GymBroTextButton(
+                    text = "Sign In",
+                    onClick = onNavigateToSignIn
+                )
+            }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ResetPasswordScreen(
     onNavigateBack: () -> Unit
@@ -288,52 +387,56 @@ fun ResetPasswordScreen(
     var email by remember { mutableStateOf("") }
     var linkSent by remember { mutableStateOf(false) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(GymBroColors.Background)
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text("🔑", fontSize = 56.sp)
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = "Восстановление пароля",
-            style = GymBroTypography.displaySmall.copy(fontWeight = FontWeight.Bold),
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = if (linkSent) "Ссылка отправлена на указанный адрес!" else "Введите email, указанный при регистрации, и мы отправим вам ссылку для сброса пароля.",
-            style = GymBroTypography.bodyLarge,
-            color = GymBroColors.TextSecondary,
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(32.dp))
-
-        if (!linkSent) {
-            GymBroTextField(
-                value = email,
-                onValueChange = { email = it },
-                label = "Email",
-                placeholder = "ivan@example.com"
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-            GymBroButton(
-                text = "Отправить ссылку",
-                onClick = { linkSent = true }
-            )
-        } else {
-            GymBroButton(
-                text = "Вернуться к входу",
-                onClick = onNavigateBack
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Forgot Password", style = GymBroTypography.titleLarge.copy(fontWeight = FontWeight.Bold)) },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back", tint = GymBroColors.TextPrimary)
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = GymBroColors.Background)
             )
         }
-        Spacer(modifier = Modifier.height(16.dp))
-        GymBroTextButton(
-            text = "Назад",
-            onClick = onNavigateBack
-        )
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .background(GymBroColors.Background)
+                .padding(24.dp),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Top
+        ) {
+            Text(
+                text = if (linkSent) "Reset link has been sent to your email!" else "Enter your email and we'll send a reset link",
+                style = GymBroTypography.bodyLarge,
+                color = GymBroColors.TextSecondary
+            )
+            Spacer(modifier = Modifier.height(32.dp))
+
+            if (!linkSent) {
+                GymBroTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = "Email",
+                    placeholder = "you@example.com",
+                    leadingIcon = {
+                        Icon(imageVector = Icons.Default.Email, contentDescription = null, tint = GymBroColors.TextSecondary)
+                    }
+                )
+                Spacer(modifier = Modifier.height(32.dp))
+                GymBroButton(
+                    text = "Send Reset Link",
+                    onClick = { linkSent = true }
+                )
+            } else {
+                GymBroButton(
+                    text = "Back to Sign In",
+                    onClick = onNavigateBack
+                )
+            }
+        }
     }
 }

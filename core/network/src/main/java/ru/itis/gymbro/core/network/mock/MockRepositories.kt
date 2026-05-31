@@ -13,15 +13,15 @@ import ru.itis.gymbro.core.domain.repository.*
 class MockAuthRepository : AuthRepository {
     private var currentUser = User(
         id = "550e8400-e29b-41d4-a716-446655440000",
-        name = "Иван Иванов",
+        name = "Jordan Smith",
         avatarUrl = null,
-        goal = "Набрать мышечную массу",
-        level = "Средний",
+        goal = "Fitness enthusiast | Calisthenics | NYC",
+        level = "Pro",
         preferredWorkouts = listOf("STRENGTH", "CROSSFIT"),
         score = 85,
-        workoutsCount = 24,
+        workoutsCount = 267,
         reviewsCount = 4,
-        bio = "Люблю приседать со штангой и бегать по утрам. Ищу напарника для тренировок в Сокольниках."
+        bio = "Fitness enthusiast | Calisthenics | NYC"
     )
 
     override suspend fun login(username: String, password: String): Resource<TokenData> {
@@ -256,16 +256,24 @@ class MockChatRepository : ChatRepository {
     private val webSocketMessages = MutableSharedFlow<ChatMessage>(extraBufferCapacity = 10)
     
     private val conversations = mutableListOf(
-        Conversation("c1", "Петр Петров", null, "Привет! Пойдешь сегодня качаться?", System.currentTimeMillis() - 600000, 1),
-        Conversation("c2", "Ольга Смирнова", null, "Отличная йога была, спасибо!", System.currentTimeMillis() - 3600000, 0)
+        Conversation("c1", "Alex Rivera", null, "See you at the gym at 6!", System.currentTimeMillis() - 2 * 60 * 1000, 2),
+        Conversation("c2", "Sarah Chen", null, "Great workout today!", System.currentTimeMillis() - 15 * 60 * 1000, 0),
+        Conversation("c3", "Mike Johnson", null, "Can you show me the form?", System.currentTimeMillis() - 60 * 60 * 1000, 1),
+        Conversation("c4", "Emma Wilson", null, "Running tomorrow morning?", System.currentTimeMillis() - 180 * 60 * 1000, 0)
     )
 
     private val messages = mutableMapOf(
         "c1" to mutableListOf(
-            ChatMessage("m1", "c1", "u1", "Привет! Пойдешь сегодня качаться?", System.currentTimeMillis() - 600000, "SENT")
+            ChatMessage("m1", "c1", "c1", "See you at the gym at 6!", System.currentTimeMillis() - 2 * 60 * 1000, "SENT")
         ),
         "c2" to mutableListOf(
-            ChatMessage("m2", "c2", "u3", "Отличная йога была, спасибо!", System.currentTimeMillis() - 3600000, "READ")
+            ChatMessage("m2", "c2", "c2", "Great workout today!", System.currentTimeMillis() - 15 * 60 * 1000, "READ")
+        ),
+        "c3" to mutableListOf(
+            ChatMessage("m3", "c3", "c3", "Can you show me the form?", System.currentTimeMillis() - 60 * 60 * 1000, "SENT")
+        ),
+        "c4" to mutableListOf(
+            ChatMessage("m4", "c4", "c4", "Running tomorrow morning?", System.currentTimeMillis() - 180 * 60 * 1000, "READ")
         )
     )
 

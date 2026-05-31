@@ -12,6 +12,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.MyLocation
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.FitnessCenter
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -96,68 +101,173 @@ fun MapScreen(
             }
         )
 
-        // Top Search & Layer Filters
-        Column(
+        // Top Search & Layer Filters Overlay
+        Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 16.dp, start = 16.dp, end = 16.dp)
+                .padding(top = 16.dp, start = 16.dp, end = 16.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = GymBroColors.Surface),
+            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
         ) {
-            Row(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(54.dp)
-                    .clip(RoundedCornerShape(24.dp))
-                    .background(GymBroColors.Surface)
-                    .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .padding(16.dp)
             ) {
-                Text(
-                    text = "🔍 Поиск мест и тренировок...",
-                    style = GymBroTypography.bodyLarge,
-                    color = GymBroColors.TextTertiary,
-                    modifier = Modifier.weight(1f)
-                )
-                Icon(
-                    imageVector = Icons.Default.FilterList,
-                    contentDescription = "Filters",
-                    tint = GymBroColors.Primary
-                )
-            }
-            
-            Spacer(modifier = Modifier.height(8.dp))
+                // Location and Notification Row
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Place,
+                        contentDescription = null,
+                        tint = GymBroColors.Primary,
+                        modifier = Modifier.size(22.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Current location",
+                            style = GymBroTypography.labelSmall,
+                            color = GymBroColors.TextSecondary
+                        )
+                        Text(
+                            text = "Downtown, NYC",
+                            style = GymBroTypography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                            color = GymBroColors.TextPrimary
+                        )
+                    }
+                    
+                    // Notification Bell with Red Badge Dot
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(GymBroColors.SurfaceVariant)
+                            .clickable { },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Notifications,
+                            contentDescription = "Notifications",
+                            tint = GymBroColors.TextPrimary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        // Red badge dot
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .clip(CircleShape)
+                                .background(GymBroColors.Error)
+                                .align(Alignment.TopEnd)
+                        )
+                    }
+                }
 
-            // Filter Chips
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                FilterChip(
-                    selected = state.showSpots,
-                    onClick = { viewModel.toggleSpotsLayer() },
-                    label = { Text("📍 Места") },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = GymBroColors.Primary,
-                        selectedLabelColor = GymBroColors.Background
+                Spacer(modifier = Modifier.height(14.dp))
+
+                // Search Bar
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(GymBroColors.SurfaceVariant)
+                        .padding(horizontal = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Search",
+                        tint = GymBroColors.TextSecondary,
+                        modifier = Modifier.size(20.dp)
                     )
-                )
-                FilterChip(
-                    selected = state.showWorkouts,
-                    onClick = { viewModel.toggleWorkoutsLayer() },
-                    label = { Text("💪 Тренировки") },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = GymBroColors.Primary,
-                        selectedLabelColor = GymBroColors.Background
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Search places, workouts...",
+                        style = GymBroTypography.bodyMedium,
+                        color = GymBroColors.TextSecondary,
+                        modifier = Modifier.weight(1f)
                     )
-                )
-                FilterChip(
-                    selected = state.showPeople,
-                    onClick = { viewModel.togglePeopleLayer() },
-                    label = { Text("🤝 Люди") },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = GymBroColors.Primary,
-                        selectedLabelColor = GymBroColors.Background
+                    Icon(
+                        imageVector = Icons.Default.FilterList,
+                        contentDescription = "Filters",
+                        tint = GymBroColors.TextPrimary,
+                        modifier = Modifier.size(20.dp)
                     )
-                )
+                }
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                // Interactive Category Chips
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    val allActive = state.showSpots && state.showWorkouts && state.showPeople
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(if (allActive) GymBroColors.Primary else GymBroColors.SurfaceVariant)
+                            .clickable {
+                                if (!state.showSpots) viewModel.toggleSpotsLayer()
+                                if (!state.showWorkouts) viewModel.toggleWorkoutsLayer()
+                                if (!state.showPeople) viewModel.togglePeopleLayer()
+                            }
+                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                    ) {
+                        Text(
+                            text = "All",
+                            style = GymBroTypography.labelLarge,
+                            color = if (allActive) Color.White else GymBroColors.TextPrimary
+                        )
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(if (state.showSpots && !allActive) GymBroColors.Primary else GymBroColors.SurfaceVariant)
+                            .clickable { viewModel.toggleSpotsLayer() }
+                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                    ) {
+                        Text(
+                            text = "Gym",
+                            style = GymBroTypography.labelLarge,
+                            color = if (state.showSpots && !allActive) Color.White else GymBroColors.TextPrimary
+                        )
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(if (state.showWorkouts && !allActive) GymBroColors.Primary else GymBroColors.SurfaceVariant)
+                            .clickable { viewModel.toggleWorkoutsLayer() }
+                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                    ) {
+                        Text(
+                            text = "CrossFit",
+                            style = GymBroTypography.labelLarge,
+                            color = if (state.showWorkouts && !allActive) Color.White else GymBroColors.TextPrimary
+                        )
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(if (state.showPeople && !allActive) GymBroColors.Primary else GymBroColors.SurfaceVariant)
+                            .clickable { viewModel.togglePeopleLayer() }
+                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                    ) {
+                        Text(
+                            text = "Yoga",
+                            style = GymBroTypography.labelLarge,
+                            color = if (state.showPeople && !allActive) Color.White else GymBroColors.TextPrimary
+                        )
+                    }
+                }
             }
         }
 
@@ -588,7 +698,12 @@ fun MockMapView(
                             .clickable { onSpotClick(spot) },
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(if (spot.type == "GYM") "🏢" else "📍", fontSize = 16.sp)
+                        Icon(
+                            imageVector = Icons.Default.Place,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(18.dp)
+                        )
                     }
                 }
             }
@@ -607,14 +722,18 @@ fun MockMapView(
                             .clickable { onWorkoutClick(event) },
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("💪", fontSize = 16.sp)
+                        Icon(
+                            imageVector = Icons.Default.FitnessCenter,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(18.dp)
+                        )
                     }
                 }
             }
 
             // Render Users
             people.forEachIndexed { i, user ->
-                // Stagger user locations around map center for mock display
                 val latOffset = 0.0015 * (i - 1)
                 val lonOffset = 0.002 * (if (i % 2 == 0) 1 else -1)
                 val pos = getScreenOffset(mapOffsetLat + latOffset, mapOffsetLon + lonOffset, mapOffsetLat, mapOffsetLon, 1080f, 1920f)
@@ -629,7 +748,12 @@ fun MockMapView(
                             .clickable { onPersonClick(user) },
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("🤝", fontSize = 16.sp)
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(18.dp)
+                        )
                     }
                 }
             }

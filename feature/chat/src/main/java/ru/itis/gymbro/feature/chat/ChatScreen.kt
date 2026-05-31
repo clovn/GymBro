@@ -1,6 +1,7 @@
 package ru.itis.gymbro.feature.chat
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -8,11 +9,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -36,12 +42,46 @@ fun ChatsListScreen(
         viewModel.loadConversations()
     }
 
+    fun getRelativeTime(timestamp: Long): String {
+        val diff = System.currentTimeMillis() - timestamp
+        return when {
+            diff < 5 * 60 * 1000 -> "2 min ago"
+            diff < 20 * 60 * 1000 -> "15 min ago"
+            diff < 90 * 60 * 1000 -> "1 hr ago"
+            else -> "3 hrs ago"
+        }
+    }
+
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Сообщения") },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = GymBroColors.Surface)
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(GymBroColors.Background)
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Messages",
+                    style = GymBroTypography.displaySmall.copy(fontWeight = FontWeight.Bold, fontSize = 24.sp),
+                    modifier = Modifier.weight(1f)
+                )
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(GymBroColors.SurfaceVariant)
+                        .clickable { },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "New Message",
+                        tint = GymBroColors.TextPrimary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
         }
     ) { padding ->
         if (state.isLoading && state.conversations.isEmpty()) {
@@ -53,10 +93,10 @@ fun ChatsListScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .background(GymBroColors.SurfaceVariant)
+                    .background(GymBroColors.Background)
                     .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(vertical = 16.dp)
+                verticalArrangement = Arrangement.Top,
+                contentPadding = PaddingValues(bottom = 24.dp)
             ) {
                 if (state.conversations.isEmpty()) {
                     item {
@@ -66,22 +106,42 @@ fun ChatsListScreen(
                                 .padding(48.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text("У вас пока нет активных диалогов.", style = GymBroTypography.bodyMedium)
+                            Text("No active conversations.", style = GymBroTypography.bodyMedium)
                         }
                     }
                 } else {
                     items(state.conversations) { conv ->
-                        GymBroCard(
-                            onClick = { onNavigateToChatRoom(conv.id) }
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onNavigateToChatRoom(conv.id) }
                         ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                GymBroAvatar(name = conv.name, avatarUrl = conv.avatarUrl)
-                                Spacer(modifier = Modifier.width(12.dp))
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(modifier = Modifier.size(56.dp)) {
+                                    GymBroAvatar(name = conv.name, avatarUrl = conv.avatarUrl, size = 56.dp)
+                                    // Green presence dot
+                                    Box(
+                                        modifier = Modifier
+                                            .size(14.dp)
+                                            .clip(CircleShape)
+                                            .background(Color(0xFF22C55E))
+                                            .border(2.dp, Color.White, CircleShape)
+                                            .align(Alignment.BottomEnd)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(16.dp))
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
                                         text = conv.name,
-                                        style = GymBroTypography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                                        style = GymBroTypography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                        color = GymBroColors.TextPrimary
                                     )
+                                    Spacer(modifier = Modifier.height(4.dp))
                                     Text(
                                         text = conv.lastMessage ?: "",
                                         style = GymBroTypography.bodyMedium,
@@ -90,10 +150,13 @@ fun ChatsListScreen(
                                     )
                                 }
                                 Column(horizontalAlignment = Alignment.End) {
-                                    val timeString = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(conv.timestamp))
-                                    Text(text = timeString, style = GymBroTypography.labelSmall)
+                                    Text(
+                                        text = getRelativeTime(conv.timestamp),
+                                        style = GymBroTypography.labelSmall,
+                                        color = GymBroColors.TextSecondary
+                                    )
                                     if (conv.unreadCount > 0) {
-                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Spacer(modifier = Modifier.height(6.dp))
                                         Box(
                                             modifier = Modifier
                                                 .size(20.dp)
@@ -103,7 +166,7 @@ fun ChatsListScreen(
                                         ) {
                                             Text(
                                                 text = conv.unreadCount.toString(),
-                                                color = GymBroColors.Background,
+                                                color = Color.White,
                                                 fontSize = 11.sp,
                                                 fontWeight = FontWeight.Bold
                                             )
@@ -111,6 +174,7 @@ fun ChatsListScreen(
                                     }
                                 }
                             }
+                            Divider(color = GymBroColors.Divider.copy(alpha = 0.5f))
                         }
                     }
                 }
@@ -134,23 +198,21 @@ fun ChatRoomScreen(
         viewModel.loadChatRoom(conversationId)
     }
 
-    // Scroll to bottom on new messages
     LaunchedEffect(state.activeMessages.size) {
         if (state.activeMessages.isNotEmpty()) {
             lazyListState.animateScrollToItem(state.activeMessages.size - 1)
         }
     }
 
-    // Resolve dialogue title
-    val chatTitle = state.conversations.find { it.id == conversationId }?.name ?: "Чат"
+    val chatTitle = state.conversations.find { it.id == conversationId }?.name ?: "Chat"
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(chatTitle) },
+                title = { Text(chatTitle, style = GymBroTypography.titleLarge.copy(fontWeight = FontWeight.Bold)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Text("←", fontSize = 24.sp, color = GymBroColors.Primary)
+                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back", tint = GymBroColors.TextPrimary)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = GymBroColors.Surface)
@@ -237,29 +299,39 @@ fun ChatRoomScreen(
                     .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                OutlinedTextField(
+                TextField(
                     value = text,
                     onValueChange = { text = it },
-                    placeholder = { Text("Сообщение...") },
+                    placeholder = { Text("Message...") },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(24.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = GymBroColors.Primary,
-                        unfocusedBorderColor = GymBroColors.Divider
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = GymBroColors.SurfaceVariant,
+                        unfocusedContainerColor = GymBroColors.SurfaceVariant,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
                     ),
                     maxLines = 3
                 )
                 Spacer(modifier = Modifier.width(12.dp))
-                Button(
+                IconButton(
                     onClick = {
-                        viewModel.sendMessage(conversationId, text)
-                        text = ""
+                        if (text.isNotBlank()) {
+                            viewModel.sendMessage(conversationId, text)
+                            text = ""
+                        }
                     },
-                    modifier = Modifier.height(48.dp),
-                    shape = RoundedCornerShape(24.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = GymBroColors.Primary)
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(GymBroColors.Primary)
                 ) {
-                    Text("Отпр.")
+                    Icon(
+                        imageVector = Icons.Default.Send,
+                        contentDescription = "Send",
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp)
+                    )
                 }
             }
         }

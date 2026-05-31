@@ -6,12 +6,18 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FitnessCenter
+import androidx.compose.material.icons.filled.People
+import androidx.compose.material.icons.filled.Place
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -27,7 +33,7 @@ import ru.itis.gymbro.core.designsystem.theme.GymBroTypography
 data class OnboardingStep(
     val title: String,
     val description: String,
-    val iconChar: String
+    val icon: ImageVector
 )
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -38,19 +44,19 @@ fun OnboardingScreen(
 ) {
     val steps = listOf(
         OnboardingStep(
-            title = "Спортивные места рядом",
-            description = "Находи спортивные площадки, залы, стадионы и новые UGC-точки поблизости на карте.",
-            iconChar = "📍"
+            title = "Find Training Spots",
+            description = "Discover gyms, parks, and workout spaces near you",
+            icon = Icons.Default.Place
         ),
         OnboardingStep(
-            title = "Ищи партнёров",
-            description = "Выбирай единомышленников по уровню подготовки, целям и видам спорта неподалеку.",
-            iconChar = "🤝"
+            title = "Connect with Buddies",
+            description = "Find workout partners who match your fitness level",
+            icon = Icons.Default.People
         ),
         OnboardingStep(
-            title = "Групповые тренировки",
-            description = "Создавай свои тренировки, приглашай людей или присоединяйся к существующим.",
-            iconChar = "💪"
+            title = "Join Group Workouts",
+            description = "Train together with the local fitness community",
+            icon = Icons.Default.FitnessCenter
         )
     )
 
@@ -77,7 +83,7 @@ fun OnboardingScreen(
         ) {
             if (pagerState.currentPage < steps.size - 1) {
                 GymBroTextButton(
-                    text = "Пропустить",
+                    text = "Skip",
                     onClick = { completeOnboarding() }
                 )
             } else {
@@ -108,9 +114,11 @@ fun OnboardingScreen(
                         .background(GymBroColors.PrimaryLight),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = step.iconChar,
-                        fontSize = 64.sp
+                    Icon(
+                        imageVector = step.icon,
+                        contentDescription = null,
+                        tint = GymBroColors.Primary,
+                        modifier = Modifier.size(64.dp)
                     )
                 }
 
@@ -138,14 +146,16 @@ fun OnboardingScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 24.dp),
-            horizontalArrangement = Arrangement.Center
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             repeat(steps.size) { index ->
                 val active = pagerState.currentPage == index
                 Box(
                     modifier = Modifier
                         .padding(horizontal = 4.dp)
-                        .size(if (active) 12.dp else 8.dp)
+                        .height(8.dp)
+                        .width(if (active) 24.dp else 8.dp)
                         .clip(CircleShape)
                         .background(if (active) GymBroColors.Primary else GymBroColors.Divider)
                 )
@@ -154,7 +164,7 @@ fun OnboardingScreen(
 
         // Action Button
         GymBroButton(
-            text = if (pagerState.currentPage == steps.size - 1) "Начать" else "Продолжить",
+            text = if (pagerState.currentPage == steps.size - 1) "Get Started" else "Continue",
             onClick = {
                 if (pagerState.currentPage < steps.size - 1) {
                     scope.launch {
