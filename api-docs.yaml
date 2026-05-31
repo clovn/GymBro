@@ -1,0 +1,1059 @@
+openapi: 3.1.0
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost:8080
+  description: Generated server url
+tags:
+- name: Geocoding
+  description: Геокодирование через Yandex Maps API
+- name: Locations
+  description: Управление точками на карте
+- name: Events
+  description: Управление планами тренировок
+paths:
+  /api/v1/geo/locations/{id}:
+    get:
+      tags:
+      - Locations
+      summary: Получить место по ID
+      operationId: getById
+      parameters:
+      - name: id
+        in: path
+        description: ID места
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "404":
+          description: Место не найдено
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "200":
+          description: Детали места
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/LocationDetailResponse"
+    put:
+      tags:
+      - Locations
+      summary: Обновить место (создатель или ADMIN)
+      operationId: update
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateLocationRequest"
+        required: true
+      responses:
+        "200":
+          description: Место обновлено
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/LocationDetailResponse"
+        "404":
+          description: Место не найдено
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Нет прав
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      tags:
+      - Locations
+      summary: Удалить место (создатель или ADMIN)
+      operationId: delete
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: Место удалено
+        "409":
+          description: Есть активные ивенты — удаление запрещено
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/geo/events/{id}:
+    get:
+      tags:
+      - Events
+      summary: Детали ивента
+      operationId: getById_1
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/EventDetailResponse"
+    put:
+      tags:
+      - Events
+      summary: "Обновить ивент (только хост, статус ACTIVE)"
+      operationId: update_1
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateEventRequest"
+        required: true
+      responses:
+        "403":
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/EventDetailResponse"
+    delete:
+      tags:
+      - Events
+      summary: Отменить ивент (только хост) → статус CANCELLED
+      operationId: cancel
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: Ивент отменён
+  /api/v1/geo/locations:
+    post:
+      tags:
+      - Locations
+      summary: Создать UGC-точку
+      operationId: create
+      requestBody:
+        description: Данные нового места
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLocationRequest"
+        required: true
+      responses:
+        "201":
+          description: Место создано
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/LocationDetailResponse"
+        "400":
+          description: Ошибка валидации
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/geo/locations/{id}/review:
+    post:
+      tags:
+      - Locations
+      summary: Оставить отзыв о месте
+      operationId: addReview
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReviewRequest"
+        required: true
+      responses:
+        "201":
+          description: Отзыв добавлен
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ReviewResponse"
+        "409":
+          description: Отзыв от этого пользователя уже существует
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      tags:
+      - Locations
+      summary: Удалить отзыв о месте
+      operationId: deleteReview
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: Отзыв удален
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ReviewResponse"
+        "404":
+          description: Отзыва не существует
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/geo/events:
+    post:
+      tags:
+      - Events
+      summary: Создать план тренировки
+      operationId: create_1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateEventRequest"
+        required: true
+      responses:
+        "201":
+          description: Ивент создан
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/EventDetailResponse"
+        "400":
+          description: Ошибка валидации
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/geo/events/{id}/reject/{userId}:
+    post:
+      tags:
+      - Events
+      summary: Отклонить участника (только хост)
+      operationId: reject
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Статус участника → REJECTED
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ParticipantResponse"
+  /api/v1/geo/events/{id}/join:
+    post:
+      tags:
+      - Events
+      summary: Записаться на тренировку
+      operationId: join
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: Заявка принята (статус PENDING)
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ParticipantResponse"
+        "409":
+          description: Уже записан / нет мест / ивент не ACTIVE
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/geo/events/{id}/confirm/{userId}:
+    post:
+      tags:
+      - Events
+      summary: Подтвердить участника (только хост)
+      operationId: confirm
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Статус участника → CONFIRMED
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ParticipantResponse"
+  /api/v1/geo/events/{id}/complete:
+    post:
+      tags:
+      - Events
+      summary: Завершить тренировку (только хост) → статус COMPLETED
+      operationId: complete
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: Тренировка завершена
+  /api/v1/geo/locations/nearby:
+    get:
+      tags:
+      - Locations
+      summary: Поиск мест в радиусе
+      operationId: getNearby
+      parameters:
+      - name: lat
+        in: query
+        description: Широта
+        required: true
+        schema:
+          type: number
+          format: double
+        example: 55.7558
+      - name: lon
+        in: query
+        description: Долгота
+        required: true
+        schema:
+          type: number
+          format: double
+        example: 37.6173
+      - name: radius
+        in: query
+        description: Радиус в метрах
+        required: true
+        schema:
+          type: integer
+          format: int32
+        example: 1000
+      - name: type
+        in: query
+        description: Тип места (опц.)
+        required: false
+        schema:
+          type: string
+          enum:
+          - GYM
+          - WORKOUT
+          - POOL
+          - STADIUM
+          - OTHER
+      - name: page
+        in: query
+        description: Номер страницы
+        schema: {}
+      - name: size
+        in: query
+        description: Размер страницы
+        schema: {}
+      - name: pageable
+        in: query
+        required: true
+        schema:
+          $ref: "#/components/schemas/Pageable"
+      responses:
+        "200":
+          description: Список мест с расстоянием
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/LocationSummaryResponse"
+        "400":
+          description: Некорректные параметры
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/geo/geocode:
+    get:
+      tags:
+      - Geocoding
+      summary: Геокодировать адрес → координаты
+      description: Результат кэшируется в Redis с TTL 30 дней (лицензия Yandex)
+      operationId: geocode
+      parameters:
+      - name: address
+        in: query
+        description: Адрес для геокодирования
+        required: true
+        schema:
+          type: string
+          description: Адрес для геокодирования
+          example: "Москва, Арбат, 1"
+        example: "Москва, Арбат, 1"
+      responses:
+        "200":
+          description: Координаты найдены
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/GeocodeResponse"
+        "404":
+          description: Адрес не найден
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/GeocodeResponse"
+  /api/v1/geo/events/nearby:
+    get:
+      tags:
+      - Events
+      summary: Поиск ивентов в радиусе
+      operationId: getNearby_1
+      parameters:
+      - name: lat
+        in: query
+        description: Широта
+        required: true
+        schema:
+          type: number
+          format: double
+      - name: lon
+        in: query
+        description: Долгота
+        required: true
+        schema:
+          type: number
+          format: double
+      - name: radius
+        in: query
+        description: Радиус в метрах
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: date
+        in: query
+        description: Дата (yyyy-MM-dd)
+        required: false
+        schema:
+          format: date
+      - name: workoutType
+        in: query
+        description: Тип тренировки
+        required: false
+        schema:
+          type: string
+          enum:
+          - POWER
+          - CARDIO
+          - WORKOUT
+          - CROSSFIT
+          - YOGA
+          - STRETCHING
+          - OTHER
+      - name: page
+        in: query
+        schema: {}
+      - name: size
+        in: query
+        schema: {}
+      - name: pageable
+        in: query
+        required: true
+        schema:
+          $ref: "#/components/schemas/Pageable"
+      responses:
+        "200":
+          description: Список ивентов
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/EventSummaryResponse"
+  /api/v1/geo/events/my:
+    get:
+      tags:
+      - Events
+      summary: Мои ивенты (хост или участник)
+      operationId: getMy
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - ACTIVE
+          - CANCELLED
+          - COMPLETED
+      - name: pageable
+        in: query
+        required: true
+        schema:
+          $ref: "#/components/schemas/Pageable"
+      responses:
+        "200":
+          description: Список ивентов пользователя
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PageEventSummaryResponse"
+components:
+  schemas:
+    UpdateLocationRequest:
+      type: object
+      description: Запрос на обновление места
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          minLength: 0
+        description:
+          type: string
+        type:
+          type: string
+          enum:
+          - GYM
+          - WORKOUT
+          - POOL
+          - STADIUM
+          - OTHER
+        equipmentTags:
+          type: array
+          items:
+            type: string
+        photoUrls:
+          type: array
+          items:
+            type: string
+    LocationDetailResponse:
+      type: object
+      description: Полная информация о месте
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum:
+          - GYM
+          - WORKOUT
+          - POOL
+          - STADIUM
+          - OTHER
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        photoUrls:
+          type: array
+          items:
+            type: string
+        equipmentTags:
+          type: array
+          items:
+            type: string
+        creator:
+          $ref: "#/components/schemas/UserShortResponse"
+        isVerified:
+          type: boolean
+        avgRating:
+          type: number
+        reviewCount:
+          type: integer
+          format: int32
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    UserShortResponse:
+      type: object
+      description: Краткая информация о пользователе (из User Service)
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        avatarUrl:
+          type: string
+    UpdateEventRequest:
+      type: object
+      description: Запрос на обновление ивента
+      properties:
+        title:
+          type: string
+          maxLength: 255
+          minLength: 0
+        description:
+          type: string
+        wishes:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        maxParticipants:
+          type: integer
+          format: int32
+          maximum: 100
+          minimum: 2
+    EventDetailResponse:
+      type: object
+      description: Полная информация об ивенте
+      properties:
+        id:
+          type: integer
+          format: int64
+        location:
+          $ref: "#/components/schemas/LocationSummaryResponse"
+        host:
+          $ref: "#/components/schemas/UserShortResponse"
+        title:
+          type: string
+        description:
+          type: string
+        workoutType:
+          type: string
+          enum:
+          - POWER
+          - CARDIO
+          - WORKOUT
+          - CROSSFIT
+          - YOGA
+          - STRETCHING
+          - OTHER
+        wishes:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        maxParticipants:
+          type: integer
+          format: int32
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - CANCELLED
+          - COMPLETED
+        participants:
+          type: array
+          items:
+            $ref: "#/components/schemas/ParticipantResponse"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    LocationSummaryResponse:
+      type: object
+      description: Место в списке (с расстоянием)
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+          - GYM
+          - WORKOUT
+          - POOL
+          - STADIUM
+          - OTHER
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        avgRating:
+          type: number
+        reviewCount:
+          type: integer
+          format: int32
+        equipmentTags:
+          type: array
+          items:
+            type: string
+        distance:
+          type: number
+          format: double
+          description: "Расстояние до пользователя, метры"
+        verified:
+          type: boolean
+    ParticipantResponse:
+      type: object
+      description: Участник ивента
+      properties:
+        userId:
+          type: string
+          format: uuid
+        userInfo:
+          $ref: "#/components/schemas/UserShortResponse"
+        status:
+          type: string
+          enum:
+          - PENDING
+          - CONFIRMED
+          - REJECTED
+        joinedAt:
+          type: string
+          format: date-time
+    CreateLocationRequest:
+      type: object
+      description: Запрос на создание UGC-точки
+      properties:
+        name:
+          type: string
+          description: Название места
+          example: Уличная качалка в Сокольниках
+          maxLength: 255
+          minLength: 0
+        description:
+          type: string
+          description: Описание места
+        type:
+          type: string
+          description: Тип места
+          enum:
+          - GYM
+          - WORKOUT
+          - POOL
+          - STADIUM
+          - OTHER
+        latitude:
+          type: number
+          format: double
+          description: Широта
+          example: 55.7558
+          maximum: 90
+          minimum: -90
+        longitude:
+          type: number
+          format: double
+          description: Долгота
+          example: 37.6173
+          maximum: 180
+          minimum: -180
+        equipmentTags:
+          type: array
+          description: Теги оборудования
+          example:
+          - турник
+          - брусья
+          items:
+            type: string
+        photoUrls:
+          type: array
+          description: URL фотографий
+          items:
+            type: string
+      required:
+      - latitude
+      - longitude
+      - name
+      - type
+    CreateReviewRequest:
+      type: object
+      description: Запрос на создание отзыва
+      properties:
+        rating:
+          type: integer
+          format: int32
+          description: Оценка от 1 до 5
+          maximum: 5
+          minimum: 1
+        comment:
+          type: string
+          description: Текст отзыва
+        tags:
+          type: array
+          description: Теги отзыва
+          example:
+          - чисто
+          - многолюдно
+          items:
+            type: string
+      required:
+      - rating
+    ReviewResponse:
+      type: object
+      description: Отзыв о месте
+      properties:
+        id:
+          type: integer
+          format: int64
+        userId:
+          type: string
+          format: uuid
+        author:
+          $ref: "#/components/schemas/UserShortResponse"
+        rating:
+          type: integer
+          format: int32
+        comment:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+    CreateEventRequest:
+      type: object
+      description: Запрос на создание ивента
+      properties:
+        locationId:
+          type: integer
+          format: int64
+        title:
+          type: string
+          maxLength: 255
+          minLength: 0
+        description:
+          type: string
+        workoutType:
+          type: string
+          enum:
+          - POWER
+          - CARDIO
+          - WORKOUT
+          - CROSSFIT
+          - YOGA
+          - STRETCHING
+          - OTHER
+        wishes:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        maxParticipants:
+          type: integer
+          format: int32
+          maximum: 100
+          minimum: 2
+      required:
+      - endTime
+      - locationId
+      - maxParticipants
+      - startTime
+      - title
+      - workoutType
+    Pageable:
+      type: object
+      properties:
+        page:
+          type: integer
+          format: int32
+          minimum: 0
+        size:
+          type: integer
+          format: int32
+          minimum: 1
+        sort:
+          type: array
+          items:
+            type: string
+    GeocodeResponse:
+      type: object
+      description: Ответ геокодирования
+      properties:
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        formattedAddress:
+          type: string
+    EventSummaryResponse:
+      type: object
+      description: Ивент в списке поблизости
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+        workoutType:
+          type: string
+          enum:
+          - POWER
+          - CARDIO
+          - WORKOUT
+          - CROSSFIT
+          - YOGA
+          - STRETCHING
+          - OTHER
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        maxParticipants:
+          type: integer
+          format: int32
+        currentParticipants:
+          type: integer
+          format: int32
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - CANCELLED
+          - COMPLETED
+        location:
+          $ref: "#/components/schemas/LocationSummaryResponse"
+        host:
+          $ref: "#/components/schemas/UserShortResponse"
+        distance:
+          type: number
+          format: double
+    PageEventSummaryResponse:
+      type: object
+      properties:
+        totalPages:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        size:
+          type: integer
+          format: int32
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/EventSummaryResponse"
+        number:
+          type: integer
+          format: int32
+        sort:
+          $ref: "#/components/schemas/Sortnull"
+        first:
+          type: boolean
+        last:
+          type: boolean
+        numberOfElements:
+          type: integer
+          format: int32
+        pageable:
+          $ref: "#/components/schemas/Pageablenull"
+        empty:
+          type: boolean
+    Pageablenull:
+      type: object
+      properties:
+        offset:
+          type: integer
+          format: int64
+        sort:
+          $ref: "#/components/schemas/Sortnull"
+        paged:
+          type: boolean
+        pageNumber:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        unpaged:
+          type: boolean
+    Sortnull:
+      type: object
+      properties:
+        empty:
+          type: boolean
+        sorted:
+          type: boolean
+        unsorted:
+          type: boolean

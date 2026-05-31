@@ -1,0 +1,16 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /Users/clovn/AndroidStudioProjects/GymBro/core/navigation/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest16414188970877955066.xml:2:13-83
+INJECTED from /Users/clovn/AndroidStudioProjects/GymBro/core/navigation/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest16414188970877955066.xml:2:13-83
+	package
+		INJECTED from /Users/clovn/AndroidStudioProjects/GymBro/core/navigation/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest16414188970877955066.xml
+	xmlns:android
+		ADDED from /Users/clovn/AndroidStudioProjects/GymBro/core/navigation/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest16414188970877955066.xml:2:23-81
+uses-sdk
+INJECTED from /Users/clovn/AndroidStudioProjects/GymBro/core/navigation/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest16414188970877955066.xml reason: use-sdk injection requested
+INJECTED from /Users/clovn/AndroidStudioProjects/GymBro/core/navigation/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest16414188970877955066.xml
+INJECTED from /Users/clovn/AndroidStudioProjects/GymBro/core/navigation/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest16414188970877955066.xml
+	android:targetSdkVersion
+		INJECTED from /Users/clovn/AndroidStudioProjects/GymBro/core/navigation/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest16414188970877955066.xml
+	android:minSdkVersion
+		INJECTED from /Users/clovn/AndroidStudioProjects/GymBro/core/navigation/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest16414188970877955066.xml
