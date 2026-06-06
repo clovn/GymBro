@@ -21,9 +21,7 @@ class GymBroApplication : Application() {
 
         // 2. Initialize Yandex MapKit Factory safely
         try {
-            // Placeholder/dummy API key for building successfully.
-            // Replace with your real Yandex MapKit API key when ready.
-            MapKitFactory.setApiKey("00000000-0000-0000-0000-000000000000")
+            MapKitFactory.setApiKey(BuildConfig.YANDEX_MAPKIT_API_KEY)
             MapKitFactory.initialize(this)
         } catch (e: Exception) {
             e.printStackTrace()

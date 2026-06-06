@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -8,6 +10,15 @@ android {
     namespace = "ru.itis.gymbro"
     compileSdk = 35
 
+    val localProperties = Properties()
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        localPropertiesFile.inputStream().use { 
+            localProperties.load(it) 
+        }
+    }
+    val yandexApiKey = localProperties.getProperty("yandex.mapkit.api.key") ?: "00000000-0000-0000-0000-000000000000"
+
     defaultConfig {
         applicationId = "ru.itis.gymbro"
         minSdk = 26
@@ -16,6 +27,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "YANDEX_MAPKIT_API_KEY", "\"$yandexApiKey\"")
     }
 
     buildTypes {
@@ -29,6 +41,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.14"

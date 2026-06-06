@@ -93,7 +93,7 @@ val appModule = module {
 
     // 8. Feature ViewModels
     viewModel { AuthViewModel(get(), get()) }
-    viewModel { MapViewModel(get(), get()) }
+    viewModel { MapViewModel(get(), get(), get()) }
     viewModel { PlaceViewModel(get()) }
     viewModel { WorkoutViewModel(get()) }
     viewModel { PeopleViewModel(get()) }

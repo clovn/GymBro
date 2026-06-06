@@ -48,6 +48,12 @@ class DelegatingAuthRepository(
 
     override suspend fun hasActiveSession(): Boolean =
         getRepo().hasActiveSession()
+
+    override suspend fun getPeople(): Resource<List<User>> =
+        getRepo().getPeople()
+
+    override suspend fun getUserProfile(userId: String): Resource<User> =
+        getRepo().getUserProfile(userId)
 }
 
 class DelegatingGeoRepository(

@@ -35,29 +35,28 @@ class PeopleViewModel(
 
     fun loadPeople() = intent {
         reduce { state.copy(isLoading = true) }
-        
-        // Mock loading search people
-        val list = listOf(
-            User("c1", "Петр Петров", goal = "Нарастить мышцы", level = "Продвинутый", score = 92, preferredWorkouts = listOf("STRENGTH", "CROSSFIT"), bio = "Занимаюсь силовым троеборьем 3 года. Жму 120 кг. Ищу напарника на субботы."),
-            User("c2", "Ольга Смирнова", goal = "Гибкость и рельеф", level = "Средний", score = 78, preferredWorkouts = listOf("YOGA", "STRETCHING"), bio = "Сертифицированный инструктор по хатха-йоге. Буду рада совместным практикам в парке."),
-            User("u4", "Алексей Ветров", goal = "Выносливость", level = "Начальный", score = 45, preferredWorkouts = listOf("CARDIO", "OTHER"), bio = "Начал готовиться к полумарафону. Бегаю по вечерам. Присоединяйтесь!")
-        )
-        
-        reduce { state.copy(isLoading = false, people = list) }
+        when (val res = authRepository.getPeople()) {
+            is Resource.Success -> {
+                reduce { state.copy(isLoading = false, people = res.data) }
+            }
+            is Resource.Error -> {
+                reduce { state.copy(isLoading = false, errorText = res.error.getDisplayMessage()) }
+            }
+            is Resource.Loading -> {}
+        }
     }
 
     fun loadUserProfile(id: String) = intent {
-        reduce { state.copy(isLoading = true) }
-        
-        // Mock get user by ID details
-        val list = listOf(
-            User("c1", "Петр Петров", goal = "Нарастить мышцы", level = "Продвинутый", score = 92, preferredWorkouts = listOf("STRENGTH", "CROSSFIT"), bio = "Занимаюсь силовым троеборьем 3 года. Жму 120 кг. Ищу напарника на субботы."),
-            User("c2", "Ольга Смирнова", goal = "Гибкость и рельеф", level = "Средний", score = 78, preferredWorkouts = listOf("YOGA", "STRETCHING"), bio = "Сертифицированный инструктор по хатха-йоге. Буду рада совместным практикам в парке."),
-            User("u4", "Алексей Ветров", goal = "Выносливость", level = "Начальный", score = 45, preferredWorkouts = listOf("CARDIO", "OTHER"), bio = "Начал готовиться к полумарафону. Бегаю по вечерам. Присоединяйтесь!")
-        )
-
-        val profile = list.find { it.id == id } ?: User(id, "Спортсмен", score = 10)
-        reduce { state.copy(isLoading = false, activeProfile = profile) }
+        reduce { state.copy(isLoading = true, activeProfile = null) }
+        when (val res = authRepository.getUserProfile(id)) {
+            is Resource.Success -> {
+                reduce { state.copy(isLoading = false, activeProfile = res.data) }
+            }
+            is Resource.Error -> {
+                reduce { state.copy(isLoading = false, errorText = res.error.getDisplayMessage()) }
+            }
+            is Resource.Loading -> {}
+        }
     }
 
     fun startChat(userId: String) = intent {

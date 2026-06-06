@@ -10,6 +10,7 @@ import org.orbitmvi.orbit.viewmodel.container
 import ru.itis.gymbro.core.common.Resource
 import ru.itis.gymbro.core.domain.model.*
 import ru.itis.gymbro.core.domain.repository.GeoRepository
+import ru.itis.gymbro.core.domain.repository.AuthRepository
 import ru.itis.gymbro.core.location.LocationTracker
 import ru.itis.gymbro.core.location.UserLocation
 
@@ -40,6 +41,7 @@ sealed interface MapSideEffect {
 
 class MapViewModel(
     private val geoRepository: GeoRepository,
+    private val authRepository: AuthRepository,
     private val locationTracker: LocationTracker
 ) : ViewModel(), ContainerHost<MapState, MapSideEffect> {
 
@@ -62,16 +64,11 @@ class MapViewModel(
         val currentLoc = state.userLocation
         val spotsRes = geoRepository.getLocationsNearby(currentLoc.latitude, currentLoc.longitude, 5000, null)
         val eventsRes = geoRepository.getEventsNearby(currentLoc.latitude, currentLoc.longitude, 5000, null)
+        val peopleRes = authRepository.getPeople()
 
         val spots = if (spotsRes is Resource.Success) spotsRes.data else emptyList()
         val workouts = if (eventsRes is Resource.Success) eventsRes.data else emptyList()
-
-        // 3. Mock nearby people (per Section 11.3 - not cached, memory only)
-        val people = listOf(
-            User("u1", "Петр Петров", goal = "Жим лежа", level = "Продвинутый", score = 32),
-            User("u2", "Мария Сидорова", goal = "Похудение", level = "Начальный", score = 15),
-            User("u3", "Ольга Смирнова", goal = "Гибкость", level = "Средний", score = 56)
-        )
+        val people = if (peopleRes is Resource.Success) peopleRes.data else emptyList()
 
         reduce {
             state.copy(

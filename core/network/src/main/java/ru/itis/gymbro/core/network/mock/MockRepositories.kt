@@ -73,6 +73,24 @@ class MockAuthRepository : AuthRepository {
     override suspend fun hasActiveSession(): Boolean {
         return true
     }
+
+    private val mockPeople = listOf(
+        User("u1", "Петр Петров", goal = "Нарастить мышцы", level = "Продвинутый", score = 92, preferredWorkouts = listOf("STRENGTH", "CROSSFIT"), bio = "Занимаюсь силовым троеборьем 3 года. Жму 120 кг. Ищу напарника на субботы."),
+        User("u2", "Мария Сидорова", goal = "Похудение", level = "Начальный", score = 15, preferredWorkouts = listOf("CARDIO"), bio = "Хочу сбросить вес к лету. Бегаю по вечерам, ищу компанию для совместных пробежек."),
+        User("u3", "Ольга Смирнова", goal = "Гибкость и рельеф", level = "Средний", score = 78, preferredWorkouts = listOf("YOGA", "STRETCHING"), bio = "Сертифицированный инструктор по хатха-йоге. Буду рада совместным практикам в парке."),
+        User("u4", "Алексей Ветров", goal = "Выносливость", level = "Начальный", score = 45, preferredWorkouts = listOf("CARDIO", "OTHER"), bio = "Начал готовиться к полумарафону. Бегаю по вечерам. Присоединяйтесь!")
+    )
+
+    override suspend fun getPeople(): Resource<List<User>> {
+        delay(500)
+        return Resource.Success(mockPeople)
+    }
+
+    override suspend fun getUserProfile(userId: String): Resource<User> {
+        delay(300)
+        val profile = mockPeople.find { it.id == userId } ?: User(userId, "Спортсмен", score = 10)
+        return Resource.Success(profile)
+    }
 }
 
 class MockGeoRepository : GeoRepository {
@@ -81,13 +99,28 @@ class MockGeoRepository : GeoRepository {
         LocationSpot(1, "Спорткомплекс Арена", "Современный зал с бассейном и кардио-зоной", "GYM", 55.751244, 37.618423, 4.8, 12, listOf("Штанги", "Тренажеры", "Бассейн"), listOf(), 450.0, true),
         LocationSpot(2, "Воркаут площадка Сокольники", "Открытая площадка в лесопарковой зоне", "WORKOUT", 55.791244, 37.678423, 4.5, 34, listOf("Турники", "Брусья", "Кольца"), listOf(), 1200.0, false),
         LocationSpot(3, "Фитнес Лайф", "Небольшой уютный клуб у метро", "GYM", 55.7658, 37.6173, 4.2, 8, listOf("Гантели", "Беговые дорожки"), listOf(), 150.0, true),
-        LocationSpot(4, "Стадион Локомотив", "Беговые дорожки под открытым небом", "STADIUM", 55.7758, 37.6373, 4.6, 21, listOf("Беговая дорожка", "Турники"), listOf(), 800.0, false)
+        LocationSpot(4, "Стадион Локомотив", "Беговые дорожки под открытым небом", "STADIUM", 55.7758, 37.6373, 4.6, 21, listOf("Беговая дорожка", "Турники"), listOf(), 800.0, false),
+        LocationSpot(5, "Воркаут Парк Горького", "Легендарная площадка у набережной с отличным видом", "WORKOUT", 55.7297, 37.6014, 4.9, 87, listOf("Турники", "Брусья", "Шведская стенка", "Канаты"), listOf(), 1500.0, false),
+        LocationSpot(6, "Кроссфит Бокс Ракета", "Профессиональный кроссфит-зал с сертифицированными тренерами", "GYM", 55.7592, 37.6251, 4.7, 45, listOf("Помосты", "Гири", "Гребные тренажеры", "Пегборды"), listOf(), 600.0, true),
+        LocationSpot(7, "Зал Тяжелой Атлетики Динамо", "Классический тяжелоатлетический зал для любителей железа", "GYM", 55.7831, 37.5583, 4.4, 19, listOf("Помосты", "Олимпийские грифы", "Блины"), listOf(), 900.0, true),
+        LocationSpot(8, "Спортзал МГУ", "Университетский спортивный манеж", "STADIUM", 55.7003, 37.5312, 4.3, 30, listOf("Беговая дорожка", "Сектора для прыжков"), listOf(), 2500.0, false)
     )
 
     private val reviews = mutableMapOf<Long, MutableList<Review>>(
         1L to mutableListOf(
-            Review(101, 5, "Отличный чистый зал, вежливый персонал.", listOf("чисто"), "2026-05-30T12:00:00Z", User("u1", "Петр Петров", score = 32)),
-            Review(102, 4, "Много тренажеров, но в час пик бывает душно.", listOf("многолюдно"), "2026-05-29T18:30:00Z", User("u2", "Мария Сидорова", score = 15))
+            Review(101, 5, "Отличный чистый зал, вежливый персонал.", listOf("чисто", "персонал"), "2026-05-30T12:00:00Z", User("u1", "Петр Петров", score = 32)),
+            Review(102, 4, "Много тренажеров, но в час пик бывает душно.", listOf("многолюдно", "вентиляция"), "2026-05-29T18:30:00Z", User("u2", "Мария Сидорова", score = 15))
+        ),
+        2L to mutableListOf(
+            Review(201, 5, "Лучшие турники в городе! Всегда чисто и есть свободные снаряды.", listOf("турники", "чисто"), "2026-05-28T10:15:00Z", User("u3", "Ольга Смирнова", score = 56)),
+            Review(202, 5, "Шикарное покрытие, брусья разной ширины. Рекомендую!", listOf("покрытие", "брусья"), "2026-05-27T14:40:00Z", User("u4", "Дмитрий Кузнецов", score = 78))
+        ),
+        3L to mutableListOf(
+            Review(301, 4, "Уютный зал, цены не кусаются. Мало беговых дорожек.", listOf("уют", "цена"), "2026-05-26T09:00:00Z", User("u5", "Елена Васильева", score = 24))
+        ),
+        5L to mutableListOf(
+            Review(501, 5, "Просто супер! Вид на Москву-реку вдохновляет на рекорды.", listOf("вид", "атмосфера"), "2026-05-25T19:20:00Z", User("u6", "Алексей Смирнов", score = 95)),
+            Review(502, 5, "Оборудование новое, ночью горит подсветка.", listOf("подсветка", "новое оборудование"), "2026-05-24T22:10:00Z", User("u7", "Артем Соколов", score = 110))
         )
     )
 
@@ -98,14 +131,14 @@ class MockGeoRepository : GeoRepository {
             description = "Жмем лежа, качаем плечи. Ждем всех уровней.",
             workoutType = "POWER",
             wishes = "Возьмите с собой полотенце и воду",
-            startTime = "2026-06-01T18:00:00Z",
-            endTime = "2026-06-01T19:30:00Z",
+            startTime = "2026-06-07T18:00:00Z",
+            endTime = "2026-06-07T19:30:00Z",
             maxParticipants = 5,
             status = "ACTIVE",
             host = User("u1", "Петр Петров", score = 32),
             participants = mutableListOf(
-                Participant("u1", "Петр Петров", status = "CONFIRMED", joinedAt = "2026-05-30T12:00:00Z"),
-                Participant("u2", "Мария Сидорова", status = "CONFIRMED", joinedAt = "2026-05-30T14:00:00Z")
+                Participant("u1", "Петр Петров", status = "CONFIRMED", joinedAt = "2026-06-05T12:00:00Z"),
+                Participant("u2", "Мария Сидорова", status = "CONFIRMED", joinedAt = "2026-06-05T14:00:00Z")
             ),
             location = spots[0]
         ),
@@ -114,15 +147,46 @@ class MockGeoRepository : GeoRepository {
             title = "Йога на открытом воздухе",
             description = "Мягкая хатха-йога на траве в парке. Коврики свои.",
             workoutType = "YOGA",
-            startTime = "2026-06-02T09:00:00Z",
-            endTime = "2026-06-02T10:30:00Z",
+            startTime = "2026-06-08T09:00:00Z",
+            endTime = "2026-06-08T10:30:00Z",
             maxParticipants = 10,
             status = "ACTIVE",
             host = User("u3", "Ольга Смирнова", score = 56),
             participants = mutableListOf(
-                Participant("u3", "Ольга Смирнова", status = "CONFIRMED", joinedAt = "2026-05-29T10:00:00Z")
+                Participant("u3", "Ольга Смирнова", status = "CONFIRMED", joinedAt = "2026-06-04T10:00:00Z")
             ),
             location = spots[1]
+        ),
+        WorkoutEvent(
+            id = 30,
+            title = "Кроссфит WOD: Субботняя жара",
+            description = "Интенсивный круговой комплекс на выносливость. Подходит для продолжающих.",
+            workoutType = "CROSSFIT",
+            wishes = "Хорошее настроение и спортивная обувь",
+            startTime = "2026-06-13T12:00:00Z",
+            endTime = "2026-06-13T13:30:00Z",
+            maxParticipants = 8,
+            status = "ACTIVE",
+            host = User("u4", "Дмитрий Кузнецов", score = 78),
+            participants = mutableListOf(
+                Participant("u4", "Дмитрий Кузнецов", status = "CONFIRMED", joinedAt = "2026-06-04T12:00:00Z")
+            ),
+            location = spots[5]
+        ),
+        WorkoutEvent(
+            id = 40,
+            title = "Кардио пробежка 10км",
+            description = "Бежим в легком темпе (6:00 мин/км) по набережной.",
+            workoutType = "RUN",
+            startTime = "2026-06-09T08:00:00Z",
+            endTime = "2026-06-09T09:15:00Z",
+            maxParticipants = 15,
+            status = "ACTIVE",
+            host = User("u6", "Алексей Смирнов", score = 95),
+            participants = mutableListOf(
+                Participant("u6", "Алексей Смирнов", status = "CONFIRMED", joinedAt = "2026-06-05T08:00:00Z")
+            ),
+            location = spots[7]
         )
     )
 
@@ -256,24 +320,24 @@ class MockChatRepository : ChatRepository {
     private val webSocketMessages = MutableSharedFlow<ChatMessage>(extraBufferCapacity = 10)
     
     private val conversations = mutableListOf(
-        Conversation("c1", "Alex Rivera", null, "See you at the gym at 6!", System.currentTimeMillis() - 2 * 60 * 1000, 2),
-        Conversation("c2", "Sarah Chen", null, "Great workout today!", System.currentTimeMillis() - 15 * 60 * 1000, 0),
-        Conversation("c3", "Mike Johnson", null, "Can you show me the form?", System.currentTimeMillis() - 60 * 60 * 1000, 1),
-        Conversation("c4", "Emma Wilson", null, "Running tomorrow morning?", System.currentTimeMillis() - 180 * 60 * 1000, 0)
+        Conversation("u1", "Петр Петров", null, "Увидимся в зале в 6 вечера!", System.currentTimeMillis() - 2 * 60 * 1000, 2),
+        Conversation("u3", "Ольга Смирнова", null, "Отличная была тренировка сегодня!", System.currentTimeMillis() - 15 * 60 * 1000, 0),
+        Conversation("u2", "Мария Сидорова", null, "Можешь показать правильную технику?", System.currentTimeMillis() - 60 * 60 * 1000, 1),
+        Conversation("u4", "Алексей Ветров", null, "Бежим завтра утром?", System.currentTimeMillis() - 180 * 60 * 1000, 0)
     )
 
     private val messages = mutableMapOf(
-        "c1" to mutableListOf(
-            ChatMessage("m1", "c1", "c1", "See you at the gym at 6!", System.currentTimeMillis() - 2 * 60 * 1000, "SENT")
+        "u1" to mutableListOf(
+            ChatMessage("m1", "u1", "u1", "Увидимся в зале в 6 вечера!", System.currentTimeMillis() - 2 * 60 * 1000, "SENT")
         ),
-        "c2" to mutableListOf(
-            ChatMessage("m2", "c2", "c2", "Great workout today!", System.currentTimeMillis() - 15 * 60 * 1000, "READ")
+        "u3" to mutableListOf(
+            ChatMessage("m2", "u3", "u3", "Отличная была тренировка сегодня!", System.currentTimeMillis() - 15 * 60 * 1000, "READ")
         ),
-        "c3" to mutableListOf(
-            ChatMessage("m3", "c3", "c3", "Can you show me the form?", System.currentTimeMillis() - 60 * 60 * 1000, "SENT")
+        "u2" to mutableListOf(
+            ChatMessage("m3", "u2", "u2", "Можешь показать правильную технику?", System.currentTimeMillis() - 60 * 60 * 1000, "SENT")
         ),
-        "c4" to mutableListOf(
-            ChatMessage("m4", "c4", "c4", "Running tomorrow morning?", System.currentTimeMillis() - 180 * 60 * 1000, "READ")
+        "u4" to mutableListOf(
+            ChatMessage("m4", "u4", "u4", "Бежим завтра утром?", System.currentTimeMillis() - 180 * 60 * 1000, "READ")
         )
     )
 
@@ -289,7 +353,14 @@ class MockChatRepository : ChatRepository {
         val existing = conversations.find { it.id == userId }
         if (existing != null) return Resource.Success(existing)
         
-        val newConv = Conversation(userId, "Тренер / GymBro", null, "Диалог начат", System.currentTimeMillis(), 0)
+        val partnerName = when (userId) {
+            "u1" -> "Петр Петров"
+            "u2" -> "Мария Сидорова"
+            "u3" -> "Ольга Смирнова"
+            "u4" -> "Алексей Ветров"
+            else -> "Спортсмен / GymBro"
+        }
+        val newConv = Conversation(userId, partnerName, null, "Диалог начат", System.currentTimeMillis(), 0)
         conversations.add(0, newConv)
         messages[userId] = mutableListOf()
         return Resource.Success(newConv)
@@ -319,9 +390,6 @@ class MockChatRepository : ChatRepository {
         }
 
         // Simulate reply from the other person
-        val targetConv = conversations.find { it.id == conversationId }
-        val partnerName = targetConv?.name ?: "Собеседник"
-        
         // Run in background / fire websocket event after 1.5s
         val responseText = when {
             text.contains("привет", ignoreCase = true) -> "Привет! Как тренировка?"
@@ -370,7 +438,10 @@ class MockNotificationRepository : NotificationRepository {
     
     private val list = mutableListOf(
         GymNotification("n1", "Новая тренировка рядом", "Петр создал тренировку 'Силовая на плечи' в Спорткомплекс Арена", System.currentTimeMillis() - 1200000, false, "EVENT", "10"),
-        GymNotification("n2", "Новый отзыв о месте", "Ольга оставила отзыв о Воркаут площадке Сокольники", System.currentTimeMillis() - 7200000, true, "REVIEW", "2")
+        GymNotification("n2", "Новый отзыв о месте", "Ольга оставила отзыв о Воркаут площадке Сокольники", System.currentTimeMillis() - 7200000, true, "REVIEW", "2"),
+        GymNotification("n3", "Ваш запрос подтвержден", "Дмитрий подтвердил ваше участие в 'Кроссфит WOD: Субботняя жара'", System.currentTimeMillis() - 3600000, false, "EVENT", "30"),
+        GymNotification("n4", "Новое сообщение", "Alex Rivera прислал вам сообщение в чате", System.currentTimeMillis() - 120000, false, "CHAT", "c1"),
+        GymNotification("n5", "Напоминание о тренировке", "Пробежка 10км начнется через 2 часа", System.currentTimeMillis() - 1800000, true, "EVENT", "40")
     )
 
     override suspend fun getNotifications(page: Int, size: Int): Resource<List<GymNotification>> {

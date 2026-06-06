@@ -18,6 +18,7 @@ data class ChatState(
     val isLoading: Boolean = false,
     val conversations: List<Conversation> = emptyList(),
     val activeMessages: List<ChatMessage> = emptyList(),
+    val activeConversationId: String? = null,
     val errorText: String? = null
 )
 
@@ -42,8 +43,7 @@ class ChatViewModel(
 
     private fun handleIncomingMessage(message: ChatMessage) = intent {
         // If this message belongs to the current open chat, append it to UI state
-        val currentOpenChat = state.activeMessages.firstOrNull()?.conversationId
-        if (currentOpenChat == message.conversationId) {
+        if (state.activeConversationId == message.conversationId) {
             val updated = state.activeMessages.toMutableList()
             if (updated.none { it.id == message.id }) {
                 updated.add(message)
@@ -68,7 +68,7 @@ class ChatViewModel(
     }
 
     fun loadChatRoom(conversationId: String) = intent {
-        reduce { state.copy(isLoading = true, activeMessages = emptyList()) }
+        reduce { state.copy(isLoading = true, activeMessages = emptyList(), activeConversationId = conversationId) }
         
         // Ensure conversation exists/registered
         chatRepository.createConversation(conversationId)

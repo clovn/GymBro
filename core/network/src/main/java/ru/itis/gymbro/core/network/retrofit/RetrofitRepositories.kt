@@ -86,6 +86,14 @@ class RetrofitAuthRepository(
     override suspend fun hasActiveSession(): Boolean {
         return !tokenStorage.getAccessToken().isNullOrBlank()
     }
+
+    override suspend fun getPeople(): Resource<List<User>> {
+        return Resource.Success(emptyList())
+    }
+
+    override suspend fun getUserProfile(userId: String): Resource<User> {
+        return Resource.Success(User(userId, "Спортсмен", score = 10))
+    }
 }
 
 class RetrofitGeoRepository(

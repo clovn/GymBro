@@ -11,6 +11,8 @@ interface AuthRepository {
     suspend fun getMe(): Resource<User>
     suspend fun updateProfile(name: String, bio: String?, goal: String?, level: String?, preferredWorkouts: List<String>): Resource<User>
     suspend fun hasActiveSession(): Boolean
+    suspend fun getPeople(): Resource<List<User>>
+    suspend fun getUserProfile(userId: String): Resource<User>
 }
 
 data class TokenData(
